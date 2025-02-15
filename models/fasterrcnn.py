@@ -22,10 +22,7 @@ class FasterRCNN(nn.Module):
 
         self.ap = MeanAveragePrecision(box_format='xyxy')
         self.network = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=None, progress=True, num_classes = self.n_classes)
-        
-        # Force CPU usage since MPS has compatibility issues
-        self.device = torch.device("cpu")
-        self.network = self.network.float().to(self.device)
+        self.network = self.network.float().cuda()
 
         self.prob_th = cfg['val']['prob_th']
         self.overlapping_th = cfg['val']['nms_th']
@@ -35,11 +32,11 @@ class FasterRCNN(nn.Module):
         self.log_val_predictions = True
 
     def forward(self, batch):
-        # moving everything to device here to avoid stalling when workers != 0
+        # moving everything to cuda here to avoid stalling when workers != 0
         for b in range(len(batch['targets'])):
-            batch['image'][b] = batch['image'][b].to(self.device)
+            batch['image'][b] = batch['image'][b].cuda()
             for k in batch['targets'][b]:
-                batch['targets'][b][k] = batch['targets'][b][k].to(self.device)
+                batch['targets'][b][k] = batch['targets'][b][k].cuda()
         out = self.network(batch['image'], batch['targets'])
         return out 
 
@@ -57,11 +54,11 @@ class FasterRCNN(nn.Module):
             self.img_with_box = []
 
     def validation_step(self, batch):
-        # moving everything to device here to avoid stalling when workers != 0
+        # moving everything to cuda here to avoid stalling when workers != 0
         for b in range(len(batch['targets'])):
-            batch['image'][b] = batch['image'][b].to(self.device)
+            batch['image'][b] = batch['image'][b].cuda()
             for k in batch['targets'][b]:
-                batch['targets'][b][k] = batch['targets'][b][k].to(self.device)
+                batch['targets'][b][k] = batch['targets'][b][k].cuda()
         out = self.network(batch['image'])
 
         # here start the postprocessing 
@@ -89,17 +86,17 @@ class FasterRCNN(nn.Module):
                 surviving_labels = refined_labels[high_scores]
                 
                 surviving_dict = {}
-                surviving_dict['boxes'] = surviving_boxes.to(self.device)
-                surviving_dict['labels'] = surviving_labels.to(self.device)
-                surviving_dict['scores'] = surviving_scores.to(self.device)
+                surviving_dict['boxes'] = surviving_boxes.cuda()
+                surviving_dict['labels'] = surviving_labels.cuda()
+                surviving_dict['scores'] = surviving_scores.cuda()
             
             # if not populate prediction dict with empty tensor to get 0 for ap and ap_ins
             # define zero sem and ins masks for iou metric
             else:
                 surviving_dict = {}
-                surviving_dict['boxes'] = torch.empty((0, 4)).to(self.device)
-                surviving_dict['labels'] = torch.empty(0).to(self.device)
-                surviving_dict['scores'] = torch.empty(0).to(self.device)
+                surviving_dict['boxes'] = torch.empty((0, 4)).cuda()
+                surviving_dict['labels'] = torch.empty(0).cuda()
+                surviving_dict['scores'] = torch.empty(0).cuda()
 
             self.ap.update([surviving_dict], [batch['targets'][b_idx]])
             
@@ -118,11 +115,11 @@ class FasterRCNN(nn.Module):
                 self.img_with_box.append(img)
 
     def test_step(self, batch):
-        # moving everything to device here to avoid stalling when workers != 0
+        # moving everything to cuda here to avoid stalling when workers != 0
         for b in range(len(batch['targets'])):
-            batch['image'][b] = batch['image'][b].to(self.device)
+            batch['image'][b] = batch['image'][b].cuda()
             for k in batch['targets'][b]:
-                batch['targets'][b][k] = batch['targets'][b][k].to(self.device)
+                batch['targets'][b][k] = batch['targets'][b][k].cuda()
         out = self.network(batch['image'])
 
         # here start the postprocessing 
@@ -151,17 +148,17 @@ class FasterRCNN(nn.Module):
                 surviving_labels = refined_labels[high_scores]
                 
                 surviving_dict = {}
-                surviving_dict['boxes'] = surviving_boxes.to(self.device)
-                surviving_dict['labels'] = surviving_labels.to(self.device)
-                surviving_dict['scores'] = surviving_scores.to(self.device)
+                surviving_dict['boxes'] = surviving_boxes.cuda()
+                surviving_dict['labels'] = surviving_labels.cuda()
+                surviving_dict['scores'] = surviving_scores.cuda()
             
             # if not populate prediction dict with empty tensor to get 0 for ap and ap_ins
             # define zero sem and ins masks for iou metric
             else:
                 surviving_dict = {}
-                surviving_dict['boxes'] = torch.empty((0, 4)).to(self.device)
-                surviving_dict['labels'] = torch.empty(0).to(self.device)
-                surviving_dict['scores'] = torch.empty(0).to(self.device)
+                surviving_dict['boxes'] = torch.empty((0, 4)).cuda()
+                surviving_dict['labels'] = torch.empty(0).cuda()
+                surviving_dict['scores'] = torch.empty(0).cuda()
 
             predictions_dictionaries.append(surviving_dict)
 
