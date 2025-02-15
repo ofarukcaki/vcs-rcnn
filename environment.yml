@@ -1,0 +1,10 @@
+name: rcnn
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9  # or your preferred version
+  - pytorch
+  - torchvision
+  - torchaudio

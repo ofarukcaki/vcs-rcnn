@@ -1,0 +1,13 @@
+name: rcnn_m1
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pytorch::pytorch
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - conda-forge::pyyaml
+  - conda-forge::click
+  - conda-forge::tqdm
