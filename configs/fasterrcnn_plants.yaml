@@ -7,8 +7,8 @@ tensorboard: 'runs'
 
 ##Data
 data:
-    train: '/Volumes/Kingston/Downloads/PhenoBench/train'
-    val: '/Volumes/Kingston/Downloads/PhenoBench/val'
+    train: '/root/PhenoBench/train'
+    val: '/root/PhenoBench/val'
     
 ##Training
 train:
