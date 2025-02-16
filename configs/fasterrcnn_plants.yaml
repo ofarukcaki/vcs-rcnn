@@ -7,15 +7,15 @@ tensorboard: 'runs'
 
 ##Data
 data:
-    train: '/root/PhenoBench/train'
-    val: '/root/PhenoBench/val'
+    train: '/Volumes/Kingston/Downloads/PhenoBench/train'
+    val: '/Volumes/Kingston/Downloads/PhenoBench/val'
     
 ##Training
 train:
-    n_gpus: 1  # Set to 0 since we're using CPU
-    workers: 8
+    n_gpus: 1  # RTX 6000 Ada GPU
+    workers: 8  # Maximizing I/O throughput
     max_epoch: 100
-    batch_size: 12
+    batch_size: 24 
     n_classes: 3
     overfit: False
     lr: 0.0001

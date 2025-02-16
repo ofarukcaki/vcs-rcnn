@@ -40,7 +40,10 @@ def main(config, ckpt_file, out):
     val_loader = DataLoader(val_dataset, batch_size=cfg['train']['batch_size'], collate_fn=collate_pdc, shuffle=False, drop_last=False, num_workers=cfg['train']['workers'])
 
     model = models.get_model(cfg)
-    weights = torch.load(ckpt_file)["model_state_dict"]
+    # Load weights with weights_only=True for better security
+    weights = torch.load(ckpt_file, weights_only=True)["model_state_dict"]
+    # Remove _orig_mod prefix from state dict keys
+    weights = {k.replace('_orig_mod.', ''): v for k, v in weights.items()}
     model.load_state_dict(weights)
     
     os.makedirs(out, exist_ok=True)

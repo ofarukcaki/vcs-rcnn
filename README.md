@@ -1,6 +1,4 @@
-# MaskRCNN for Plant Detection
-
-The pretrained model can be downloaded at this [link](https://www.ipb.uni-bonn.de/html/projects/phenobench/rcnn/plant_detection/last.pt)
+# Faster R-CNN for Plant Detection
 
 ## Install
 `conda env create -f environment.yml`
